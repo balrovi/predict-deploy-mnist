@@ -91,7 +91,7 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
 async def main():
     content = head_html + """
     <marquee width="625" behavior="alternate"><h1 style="color:red;font-family:Arial"> Kaltie upload your image lahafdek !</h1></marquee>
-    <h3 style="font-family:Arial">We'll Try to Predict Which of These Categories They Are:</h3><br>
+    <h3 style="font-family:Arial">choubik loubik, ghadi n9amro 3la ra9em mn hadou</h3><br>
     """
 
     original_paths = [   'zero.jpg',
