@@ -201,7 +201,6 @@ PySocks
 python-dateutil
 python-multipart
 pytorch-lightning
-pytorch3d
 pytz
 PyYAML
 pyzmq
