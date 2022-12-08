@@ -56,19 +56,18 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
         images.append(f)
 
     images = [np.frombuffer(img, np.uint8) for img in images]
-    images = [cv2.imdecode(img, cv2.IMREAD_COLOR) for img in images]
-    images_resized = [resize(img) for img in images]
-    images_grey = [cv2.cvtColor(img, cv2.COLOR_IMREAD_GRAYSCALE) for img in images_resized]
+    images_grey = [cv2.imdecode(img, cv2.COLOR_IMREAD_GRAYSCALE) for img in images]
+    images_resized = [resize(img) for img in images_grey]
 
     names = [file.filename for file in files]
 
-    for image, name in zip(images_grey, names):
+    for image, name in zip(images_resized, names):
         pillow_image = Image.fromarray(image)
         pillow_image.save('static/' + name)
 
     image_paths = ['static/' + name for name in names]
 
-    images_arr = np.array(images_grey, dtype=np.float32)
+    images_arr = np.array(images_resized, dtype=np.float32)
 
     class_indexes = model_predict(images_arr)
 
