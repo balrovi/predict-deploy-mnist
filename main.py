@@ -7,13 +7,14 @@ import cv2
 from PIL import Image
 import tflite_runtime.interpreter as tflite
 
-model = tflite.Interpreter("static/model.tflite")
+model = tflite.Interpreter("static/mnist.tflite")
 model.allocate_tensors()
 
 input_details = model.get_input_details()
 output_details = model.get_output_details()
 
-class_mapping = {1: 'one',
+class_mapping = {0: 'zero',
+                 1: 'one',
                  2: 'two',
                  3: 'three',
                  4: 'four',
@@ -29,9 +30,9 @@ def model_predict(images_arr):
     predictions = [0] * len(images_arr)
 
     for i, val in enumerate(predictions):
-        model.set_tensor(input_details[0]['index'], images_arr[i].reshape((1, 150, 150, 3)))
+        model.set_tensor(input_details[0]['index'], images_arr[i].reshape((1, 28, 28, 1)))
         model.invoke()
-        predictions[i] = model.get_tensor(output_details[0]['index']).reshape((6,))
+        predictions[i] = model.get_tensor(output_details[0]['index']).reshape((10,))
 
     prediction_probabilities = np.array(predictions)
     argmaxs = np.argmax(prediction_probabilities, axis=1)
@@ -44,7 +45,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def resize(image):
-    return cv2.resize(image, (150, 150))
+    return cv2.resize(image, (28, 28))
 
 
 @app.post("/uploadfiles/", response_class=HTMLResponse)
@@ -57,17 +58,17 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
     images = [np.frombuffer(img, np.uint8) for img in images]
     images = [cv2.imdecode(img, cv2.IMREAD_COLOR) for img in images]
     images_resized = [resize(img) for img in images]
-    images_rgb = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in images_resized]
+    images_grey = [cv2.cvtColor(img, cv2.COLOR_IMREAD_GRAYSCALE) for img in images_resized]
 
     names = [file.filename for file in files]
 
-    for image, name in zip(images_rgb, names):
+    for image, name in zip(images_grey, names):
         pillow_image = Image.fromarray(image)
         pillow_image.save('static/' + name)
 
     image_paths = ['static/' + name for name in names]
 
-    images_arr = np.array(images_rgb, dtype=np.float32)
+    images_arr = np.array(images_grey, dtype=np.float32)
 
     class_indexes = model_predict(images_arr)
 
@@ -90,16 +91,25 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
 @app.get("/", response_class=HTMLResponse)
 async def main():
     content = head_html + """
-    <marquee width="525" behavior="alternate"><h1 style="color:red;font-family:Arial">Please Upload Your Scenes!</h1></marquee>
+    <marquee width="625" behavior="alternate"><h1 style="color:red;font-family:Arial"> Kaltie upload your image lahafdek !</h1></marquee>
     <h3 style="font-family:Arial">We'll Try to Predict Which of These Categories They Are:</h3><br>
     """
 
-    original_paths = ['building_1.jpg', 'forest_1.jpg', 'glacier_1.jpg',
-                      'mountain_1.jpg', 'sea_1.jpg', 'street_1.jpg']
+    original_paths = [   'zero.jpg',
+                         'one.jpg',
+                         'two.jpg',
+                         'three.jpg',
+                         'four.jpg',
+                         'five.jpg',
+                         'six.jpg',
+                         'seven.jpg',
+                         'eight.jpg',
+                         'nine.jpg',
+                      ]
 
     full_original_paths = ['static/original/' + x for x in original_paths]
 
-    display_names = ['Building', 'Forest', 'Glacier', 'Mountain', 'Sea', 'Street']
+    display_names = [filename.split('.')[0] for filename in original_paths]
 
     column_labels = []
 
