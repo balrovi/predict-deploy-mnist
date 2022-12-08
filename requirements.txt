@@ -213,8 +213,6 @@ rsa
 ruamel.yaml
 ruamel.yaml.clib
 s3transfer
-scikit-learn
-scipy
 SecretStorage
 Send2Trash
 sentry-sdk
@@ -222,7 +220,6 @@ setuptools
 shortuuid
 sip
 six
-sklearn
 smmap
 sniffio
 starlette

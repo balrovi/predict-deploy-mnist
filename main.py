@@ -56,7 +56,7 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
         images.append(f)
 
     images = [np.frombuffer(img, np.uint8) for img in images]
-    images_grey = [cv2.imdecode(img, cv2.COLOR_IMREAD_GRAYSCALE) for img in images]
+    images_grey = [cv2.imdecode(img, 0) for img in images]
     images_resized = [resize(img) for img in images_grey]
 
     names = [file.filename for file in files]
