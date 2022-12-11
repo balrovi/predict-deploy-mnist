@@ -47,6 +47,29 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def resize(image):
     return cv2.resize(image, (28, 28))
 
+#Expects image in grey
+def resize_to_contour(image, plt=None):
+    ret, thresh = cv2.threshold(image.copy(), 75, 255, cv2.THRESH_BINARY_INV)
+    contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    preprocessed_digits = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+
+        # Creating a rectangle around the digit in the original image (for displaying the digits fetched via contours)
+        cv2.rectangle(image, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
+
+        # Cropping out the digit from the image corresponding to the current contours in the for loop
+        digit = thresh[y:y + h, x:x + w]
+
+        # Resizing that digit to (18, 18)
+        resized_digit = cv2.resize(digit, (18, 18))
+
+        # Padding the digit with 5 pixels of black color (zeros) in each side to finally produce the image of (28, 28)
+        padded_digit = np.pad(resized_digit, ((5, 5), (5, 5)), "constant", constant_values=0)
+
+        # Adding the preprocessed digit to the list of preprocessed digits
+        preprocessed_digits.append(padded_digit)
+    return preprocessed_digits[-1]
 
 @app.post("/uploadfiles/", response_class=HTMLResponse)
 async def create_upload_files(files: List[UploadFile] = File(...)):
@@ -57,7 +80,7 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
 
     images = [np.frombuffer(img, np.uint8) for img in images]
     images_grey = [cv2.imdecode(img, 0) for img in images]
-    images_resized = [resize(img) for img in images_grey]
+    images_resized = [resize_to_contour(img) for img in images_grey]
 
     names = [file.filename for file in files]
 
