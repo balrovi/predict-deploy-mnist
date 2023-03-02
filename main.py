@@ -101,7 +101,7 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
     table_html = get_html_table(image_paths, class_predictions, column_labels)
 
     content = head_html + """
-    <marquee width="525" behavior="alternate"><h1 style="color:red;font-family:Arial">Here's Our Predictions!</h1></marquee>
+    <marquee width="525" behavior="alternate"><h1 style="color:red;font-family:Arial">Here's what the computer reads!</h1></marquee>
     """ + str(table_html) + '''<br><form method="post" action="/">
     <button type="submit">Home</button>
     </form>'''
@@ -113,8 +113,8 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
 @app.get("/", response_class=HTMLResponse)
 async def main():
     content = head_html + """
-    <marquee width="625" behavior="alternate"><h1 style="color:red;font-family:Arial"> Kaltie upload your image lahafdek !</h1></marquee>
-    <h3 style="font-family:Arial">choubik loubik, ghadi n9amro 3la ra9em mn hadou</h3><br>
+    <marquee width="725" behavior="alternate"><h1 style="color:red;font-family:Arial"> Please upload your images below</h1></marquee>
+    <h3 style="font-family:Arial">Let's discover what numbers the computer will read</h3><br>
     """
 
     original_paths = [   'zero.jpg',
